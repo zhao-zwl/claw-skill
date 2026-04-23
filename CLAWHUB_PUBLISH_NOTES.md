@@ -87,7 +87,7 @@ clawhub --version
 | Skill | Slug | 当前版本 | 最后发布 |
 |-------|------|----------|----------|
 | Quick Team | quick-team | **1.1.0** | 2026-04-23 |
-| Quick Resurrection | quick-resurrection | **2.0.0** | 2026-04-23 |
+| Quick Resurrection | quick-resurrection | **2.1.0** | 2026-04-23 |
 | Team Resurrection | team-resurrection | **1.0.0** | 2026-04-22 |
 | Team Sessions | team-sessions | **1.0.0** | 2026-04-22 |
 
