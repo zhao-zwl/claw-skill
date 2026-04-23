@@ -4,7 +4,21 @@
 
 ---
 
-## 一、发布前检查清单
+## 一、版本号规范（强制）
+
+格式：`主版本.次版本.修订号`（语义化版本）
+
+| 级别 | 触发条件 |
+|------|----------|
+| 修订号 +1 | 小改动：修正错别字、格式调整、文档补充 |
+| 次版本 +1 | 新增功能：新增章节、新模板、新流程 |
+| 主版本 +1 | 破坏性变更：接口重写、流程大变 |
+
+**发布后：同步更新本文件最下方的「当前版本表」**
+
+---
+
+## 二、发布前检查清单
 
 发布每个 skill 前，逐一确认：
 
@@ -19,28 +33,25 @@
 
 ---
 
-## 二、发布命令模板
+## 三、发布命令模板（已含版本号）
 
 ```bash
-# 1. 检查（每个 skill 发布前必做）
-clawhub check ./quick-resurrection
-clawhub check ./quick-team
-clawhub check ./team-sessions
+# quick-team
+clawhub publish /Users/zhaowenlong/claw-skill/quick-team --slug quick-team --name "Quick Team" --version 1.1.0 --changelog "全面升级：6步创建流程补全、新增子代理标准目录结构、新增去AI味铁律、补全所有模板和示例"
 
-# 2. 模拟发布（确认无报错后再真发）
-clawhub publish --dry-run ./quick-resurrection
-clawhub publish --dry-run ./quick-team
-clawhub publish --dry-run ./team-sessions
+# quick-resurrection
+clawhub publish /Users/zhaowenlong/claw-skill/quick-resurrection --slug quick-resurrection --name "Quick Resurrection" --version 1.0.0 --changelog "OpenClaw多Agent团队一键搬家，换电脑后一键复活整个团队"
 
-# 3. 正式发布（赵文龙执行）
-clawhub publish ./quick-resurrection
-clawhub publish ./quick-team
-clawhub publish ./team-sessions
+# team-resurrection
+clawhub publish /Users/zhaowenlong/claw-skill/team-resurrection --slug team-resurrection --name "Team Resurrection" --version 1.0.0 --changelog "精简版：核心文件打包，快速复刻团队"
+
+# team-sessions
+clawhub publish /Users/zhaowenlong/claw-skill/team-sessions --slug team-sessions --name "Team Sessions" --version 1.0.0 --changelog "团队沟通规范：零横向沟通、workspace隔离、标准派任务流程"
 ```
 
 ---
 
-## 三、常用命令速查
+## 四、常用命令速查
 
 ```bash
 # 列出所有 skills
@@ -71,7 +82,18 @@ clawhub --version
 
 ---
 
-## 四、已知问题记录
+## 五、当前版本表（每次发布后更新）
+
+| Skill | Slug | 当前版本 | 最后发布 |
+|-------|------|----------|----------|
+| Quick Team | quick-team | **1.1.0** | 2026-04-23 |
+| Quick Resurrection | quick-resurrection | **1.0.0** | 2026-04-22 |
+| Team Resurrection | team-resurrection | **1.0.0** | 2026-04-22 |
+| Team Sessions | team-sessions | **1.0.0** | 2026-04-22 |
+
+---
+
+## 六、已知问题记录
 
 ### 2026-04-23：发布操作失误导致回退
 

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.1.0] - 2026-04-23
 
 ### Added
 - `templates/MEMORY.md` — 新增 MEMORY.md 模板（漏掉补充）
