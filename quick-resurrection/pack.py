@@ -71,12 +71,22 @@ def detect_active_workspace():
                 if wp.exists() and (wp / "SOUL.md").exists():
                     return wp
 
-    # fallback：遍历 workspace- 开头的目录，找包含 SOUL.md + MEMORY.md 的
+    # fallback：遍历 workspace- 开头的目录
+    # 优先选择：同时有 SOUL.md+MEMORY.md 且子代理数量最多的那个
     workspace_base = Path.home() / ".qclaw"
+    candidates = []
     for d in workspace_base.iterdir():
-        if d.is_dir() and d.name.startswith("workspace-"):
-            if (d / "SOUL.md").exists() and (d / "MEMORY.md").exists():
-                return d
+        if not (d.is_dir() and d.name.startswith("workspace-")):
+            continue
+        has_identity = (d / "SOUL.md").exists() and (d / "MEMORY.md").exists()
+        # 数子目录里有多少个 SOUL.md（代理越多越可能是主控）
+        subagent_count = sum(1 for sub in d.iterdir() if sub.is_dir() and (sub / "SOUL.md").exists())
+        candidates.append((d, has_identity, subagent_count))
+    
+    # 优先选有身份的，其次选子代理最多的
+    candidates.sort(key=lambda x: (x[1], x[2]), reverse=True)
+    if candidates:
+        return candidates[0][0]
 
     # fallback:找当前 cwd 的父链
     cwd = Path.cwd()
@@ -120,7 +130,20 @@ def get_cron_tasks():
     output, code = run_cmd("openclaw tasks list --json")
     if code == 0 and output:
         try:
-            return json.loads(output)
+            result = json.loads(output)
+            # openclaw tasks list --json 返回 {count, runtime, status, tasks: [...]}
+            if isinstance(result, dict) and 'tasks' in result:
+                # 只取 cron 类型，按 sourceId 去重（同一任务定义只保留一条）
+                seen, out = set(), []
+                for t in result['tasks']:
+                    if t.get('runtime') == 'cron':
+                        sid = t.get('sourceId', '')
+                        if sid not in seen:
+                            seen.add(sid)
+                            out.append(t)
+                return out
+            elif isinstance(result, list):
+                return result
         except:
             pass
     return []
@@ -257,22 +280,20 @@ def main():
 
     cron_tasks = get_cron_tasks()
     if cron_tasks:
-        cron_config = []
-        for task in cron_tasks:
-            if isinstance(task, str):
-                cron_config.append({"name": task})
-            elif isinstance(task, dict):
-                cron_config.append({
-                    "name": task.get('name', ''),
-                    "schedule": task.get('schedule', {}),
-                    "sessionTarget": task.get('sessionTarget', 'isolated'),
-                    "payload": task.get('payload', {})
-                })
+        # 只存任务名（按 sourceId 去重），不打包 schedule
+        # 原因：openclaw tasks list --json 返回历史执行记录，不含 schedule 字段
+        # 正确做法：从 openclaw.json 读原始配置，但需另写解析器
+        # 暂改为存任务名列表，migrate 时跳过自动创建，提示手动重建
+        cron_names = sorted(set(
+            t.get('label', '') or t.get('name', '')
+            for t in cron_tasks
+            if t.get('label') or t.get('name')
+        ))
 
         with open(package_dir / "cron_tasks.json", 'w', encoding='utf-8') as f:
-            json.dump(cron_config, f, indent=2, ensure_ascii=False)
+            json.dump(cron_names, f, indent=2, ensure_ascii=False)
 
-        log(f"  cron_tasks.json ({len(cron_tasks)} 个任务)")
+        log(f"  cron_tasks.json ({len(cron_names)} 个任务名，待手动重建)")
     else:
         warn("  未能获取 cron 任务列表")
     print()

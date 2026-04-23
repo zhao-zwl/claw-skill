@@ -49,11 +49,15 @@ def backup_existing():
     """
     info("检查是否需要备份...")
     
-    need_backup = False
     targets = []
+    qclaw_base = Path.home() / ".qclaw"
+    
+    if not qclaw_base.exists():
+        info("  ~/.qclaw/ 不存在，无需备份")
+        return
     
     # 检查 workspace
-    for d in Path.home() / ".qclaw".iterdir():
+    for d in qclaw_base.iterdir():
         if d.is_dir() and d.name.startswith("workspace-"):
             need_backup = True
             targets.append(d)
@@ -275,10 +279,11 @@ def copy_team_members(package_dir):
         if candidates:
             main_ws = str(candidates[0])
     
-    if main_ws:
-        main_ws_path = Path(main_ws)
-    else:
-        main_ws_path = workspace_base / "workspace-main"
+    if not main_ws:
+        info("  未找到 main workspace，跳过")
+        return True
+    
+    main_ws_path = Path(main_ws)
     
     count = 0
     for member_dir in team_dir.iterdir():
@@ -321,10 +326,11 @@ def copy_skills(package_dir):
         if candidates:
             main_ws = str(candidates[0])
     
-    if main_ws:
-        ws_path = Path(main_ws)
-    else:
-        ws_path = workspace_base / "workspace-main"
+    if not main_ws:
+        info("  未找到 main workspace，跳过")
+        return True
+    
+    ws_path = Path(main_ws)
     
     skills_dst = ws_path / "skills"
     skills_dst.mkdir(parents=True, exist_ok=True)
@@ -340,48 +346,48 @@ def copy_skills(package_dir):
     return True
 
 def create_cron_tasks(package_dir):
-    """创建 cron 任务"""
-    info("创建 cron 任务...")
+    """提示用户手动重建 cron 任务"""
+    info("检查 cron 任务...")
     
     cron_file = package_dir / "cron_tasks.json"
     if not cron_file.exists():
-        warn("  未检测到 cron 配置")
+        info("  未检测到 cron 配置，跳过")
         return True
     
-    cron_tasks = load_json(cron_file)
+    cron_data = load_json(cron_file)
     
-    # 检查已存在
-    output, _ = run_cmd("openclaw tasks list --json 2>/dev/null")
+    # pack.py v2.0 之后存的是名字列表，不是任务对象
+    if isinstance(cron_data, list) and cron_data and isinstance(cron_data[0], str):
+        print()
+        print("⏰ 搬家包中有以下 cron 任务，请在新环境手动重建：")
+        for name in cron_data:
+            print(f"  - {name}")
+        print()
+        warn("  cron 任务无法自动迁移，需手动重建")
+        warn("  在新环境的 agent 中对毒舌说：'帮我创建XXX定时任务'")
+        print()
+        return True
+    
+    # 以下是旧格式兼容（任务对象数组），理论上不会再出现
+    existing_output, _ = run_cmd("openclaw tasks list --json 2>/dev/null")
     try:
-        existing = json.loads(output) if output else []
-        existing_names = {t.get('name', '') for t in existing}
+        existing_tasks = json.loads(existing_output) if existing_output else []
+        existing_names = {t.get('label', '') or t.get('name', '') for t in existing_tasks}
     except:
         existing_names = set()
     
-    created = 0
-    skipped = 0
-    failed = 0
-    
-    for task in cron_tasks:
-        task_name = task.get('name', 'unnamed')
-        
+    created = skipped = failed = 0
+    for task in cron_data:
+        task_name = task.get('label', '') or task.get('name', 'unnamed')
         if task_name in existing_names:
             skipped += 1
-            info(f"  跳过已存在：{task_name}")
             continue
-        
         task_json = json.dumps(task, ensure_ascii=False)
-        cmd = f"openclaw tasks add --job '{task_json}'"
-        output, code = run_cmd(cmd)
-        
-        if code == 0:
-            log(f"  创建：{task_name}")
-            created += 1
-        else:
-            err(f"  创建失败：{task_name}")
-            failed += 1
+        _, code = run_cmd(f"openclaw tasks add --job '{task_json}'")
+        if code == 0: created += 1
+        else: failed += 1
     
-    info(f"  结果：{created}个创建，{skipped}个跳过，{failed}个失败")
+    log(f"  自动重建结果：{created}个创建，{skipped}个跳过，{failed}个失败")
     return True
 
 def restart_gateway():
