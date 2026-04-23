@@ -2,7 +2,7 @@
 
 ## 常用工具
 
-- `web_search` — 网络搜索（默认用腾讯元宝）
+- `web_search` — 网络搜索（腾讯元宝）
 - `web_fetch` — 读取网页内容
 - `read` — 读取本地文件
 - `exec` — 运行 Python/shell 脚本处理数据

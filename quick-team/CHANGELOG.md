@@ -1,19 +1,29 @@
-# Changelog
+# CHANGELOG
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2026-04-22
+## [Unreleased]
 
 ### Added
-- 5 步标准化创建流程（SKILL.md）
-- README.md（中文 + 英文，降低使用门槛）
-- 设计原则自检问题（什么是好的 SOUL.md）
-- `templates/` 目录：SOUL.md / IDENTITY.md / TOOLS.md / HEARTBEAT.md
-- `examples/assistant/` 完整示例（可直接复制使用的研究助手模板）
-- LICENSE (MIT)
-- .gitignore
+- `templates/MEMORY.md` — 新增 MEMORY.md 模板（漏掉补充）
+- `examples/assistant/HEARTBEAT.md` — 示例补全
+- `examples/assistant/MEMORY.md` — 示例补全
 
-### Features
-- 全文件覆盖：workspace + SOUL.md + openclaw 配置
-- 零学习成本，照着做就行
-- 提供完整示例和模板，可直接复制使用
+### Changed
+- `SKILL.md` — 全面升级：
+  - 新增 `metadata.name` 字段（clawhub 识别必需）
+  - 描述精简，结构重组
+  - 6步创建流程补全（增加"验证激活"步骤）
+  - 新增"子代理标准目录结构"章节
+  - 新增"去AI味铁律"章节（团队标准规范）
+- `README.md` — 升级为完整说明文档（安装/使用/模板/版本）
+- `examples/assistant/TOOLS.md` — 去除过时工作流描述
+
+### Fixed
+- `templates/HEARTBEAT.md` — 注释格式混乱问题（说明文字移出模板正文）
+
+---
+
+## [1.0.0] - 2026-04-22
+
+- 初始版本
