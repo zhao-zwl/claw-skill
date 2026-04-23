@@ -4,6 +4,14 @@
 
 ---
 
+## 安装
+
+```bash
+clawhub install team-resurrection
+```
+
+---
+
 ## 特性
 
 - **三大场景**：搬家 · 分身 · 备份，三合一
