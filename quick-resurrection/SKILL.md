@@ -10,7 +10,7 @@ metadata:
 
 # Quick Resurrection
 
-> **OpenClaw 多 Agent 团队一键搬家。** 换电脑 / 重装系统后，打包带走，一键复活。
+> **触发：** 用户说「我要搬家」「换电脑了」「重装系统」「帮我打包带走团队」等。
 >
 > **版本：v2.0** — 自动检测 workspace、搬家前自动备份、config 合并不覆盖。
 
