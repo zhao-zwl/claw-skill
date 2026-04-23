@@ -71,19 +71,33 @@ def detect_active_workspace():
                 if wp.exists() and (wp / "SOUL.md").exists():
                     return wp
 
-    # fallback：遍历 workspace- 开头的目录
-    # 优先选择：同时有 SOUL.md+MEMORY.md 且子代理数量最多的那个
+    # fallback：从agents.list推断主agent workspace
+    # 策略：收集所有workspace路径的父级链，找包含SOUL.md的最深公共父目录
+    workspaces = [Path(a['workspace']) for a in agents
+                  if a.get('workspace') and Path(a.get('workspace', '')).exists()]
+    if workspaces:
+        # 收集所有workspace的所有祖先目录（到home为止）
+        candidate_dirs = set()
+        home = Path.home()
+        for ws in workspaces:
+            for parent in ws.parents:
+                if parent == home or not str(parent).startswith(str(home)):
+                    break
+                candidate_dirs.add(parent)
+        # 在候选目录中找包含SOUL.md+MEMORY.md的，选最深的（最接近workspace）
+        for candidate in sorted(candidate_dirs, key=lambda x: len(x.parts), reverse=True):
+            if (candidate / 'SOUL.md').exists() and (candidate / 'MEMORY.md').exists():
+                return candidate
+
+    # fallback：遍历 workspace- 开头的目录，找包含 SOUL.md + MEMORY.md 的
     workspace_base = Path.home() / ".qclaw"
     candidates = []
     for d in workspace_base.iterdir():
         if not (d.is_dir() and d.name.startswith("workspace-")):
             continue
         has_identity = (d / "SOUL.md").exists() and (d / "MEMORY.md").exists()
-        # 数子目录里有多少个 SOUL.md（代理越多越可能是主控）
         subagent_count = sum(1 for sub in d.iterdir() if sub.is_dir() and (sub / "SOUL.md").exists())
         candidates.append((d, has_identity, subagent_count))
-    
-    # 优先选有身份的，其次选子代理最多的
     candidates.sort(key=lambda x: (x[1], x[2]), reverse=True)
     if candidates:
         return candidates[0][0]
