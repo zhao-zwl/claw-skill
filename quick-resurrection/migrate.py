@@ -346,48 +346,57 @@ def copy_skills(package_dir):
     return True
 
 def create_cron_tasks(package_dir):
-    """提示用户手动重建 cron 任务"""
-    info("检查 cron 任务...")
+    """从 cron_jobs.json 重建定时任务"""
+    info("重建 cron 任务...")
     
-    cron_file = package_dir / "cron_tasks.json"
+    cron_file = package_dir / "cron_jobs.json"
     if not cron_file.exists():
         info("  未检测到 cron 配置，跳过")
         return True
     
-    cron_data = load_json(cron_file)
-    
-    # pack.py v2.0 之后存的是名字列表，不是任务对象
-    if isinstance(cron_data, list) and cron_data and isinstance(cron_data[0], str):
-        print()
-        print("⏰ 搬家包中有以下 cron 任务，请在新环境手动重建：")
-        for name in cron_data:
-            print(f"  - {name}")
-        print()
-        warn("  cron 任务无法自动迁移，需手动重建")
-        warn("  在新环境的 agent 中对毒舌说：'帮我创建XXX定时任务'")
-        print()
+    jobs = load_json(cron_file)
+    if not jobs:
+        info("  cron_jobs.json 为空，跳过")
         return True
     
-    # 以下是旧格式兼容（任务对象数组），理论上不会再出现
-    existing_output, _ = run_cmd("openclaw tasks list --json 2>/dev/null")
-    try:
-        existing_tasks = json.loads(existing_output) if existing_output else []
-        existing_names = {t.get('label', '') or t.get('name', '') for t in existing_tasks}
-    except:
-        existing_names = set()
+    # 读取当前已有任务名
+    cron_dir = Path.home() / ".qclaw" / "cron" / "jobs.json"
+    existing_names = set()
+    if cron_dir.exists():
+        try:
+            existing_jobs = json.loads(cron_dir.read_text(encoding="utf-8")).get("jobs", [])
+            existing_names = {j.get("name", "") for j in existing_jobs}
+        except:
+            pass
     
     created = skipped = failed = 0
-    for task in cron_data:
-        task_name = task.get('label', '') or task.get('name', 'unnamed')
-        if task_name in existing_names:
+    for job in jobs:
+        job_name = job.get("name", "unnamed")
+        if job_name in existing_names:
             skipped += 1
+            info(f"  跳过已存在：{job_name}")
             continue
-        task_json = json.dumps(task, ensure_ascii=False)
-        _, code = run_cmd(f"openclaw tasks add --job '{task_json}'")
-        if code == 0: created += 1
-        else: failed += 1
+        
+        # 构造 openclaw tasks add --job JSON（去掉运行时 state 字段）
+        job_copy = {k: v for k, v in job.items()
+                    if k not in ("id", "createdAtMs", "updatedAtMs", "state")}
+        # 确保 delivery 有 sessionTarget
+        if "sessionTarget" not in job_copy:
+            job_copy["sessionTarget"] = "isolated"
+        
+        job_json = json.dumps(job_copy, ensure_ascii=False)
+        # 用 heredoc 避免 shell 转义问题
+        cmd = f"openclaw tasks add --job '{job_json}'"
+        output, code = run_cmd(cmd)
+        
+        if code == 0:
+            log(f"  创建：{job_name}")
+            created += 1
+        else:
+            err(f"  创建失败：{job_name} - {output[:100]}")
+            failed += 1
     
-    log(f"  自动重建结果：{created}个创建，{skipped}个跳过，{failed}个失败")
+    info(f"  结果：{created}个创建，{skipped}个跳过，{failed}个失败")
     return True
 
 def restart_gateway():

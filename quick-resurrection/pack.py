@@ -126,27 +126,17 @@ def get_agent_info():
     return config.get('agents', {}).get('list', [])
 
 def get_cron_tasks():
-    """获取 cron 任务列表"""
-    output, code = run_cmd("openclaw tasks list --json")
-    if code == 0 and output:
-        try:
-            result = json.loads(output)
-            # openclaw tasks list --json 返回 {count, runtime, status, tasks: [...]}
-            if isinstance(result, dict) and 'tasks' in result:
-                # 只取 cron 类型，按 sourceId 去重（同一任务定义只保留一条）
-                seen, out = set(), []
-                for t in result['tasks']:
-                    if t.get('runtime') == 'cron':
-                        sid = t.get('sourceId', '')
-                        if sid not in seen:
-                            seen.add(sid)
-                            out.append(t)
-                return out
-            elif isinstance(result, list):
-                return result
-        except:
-            pass
-    return []
+    """从 ~/.qclaw/cron/jobs.json 读取 cron 任务定义"""
+    cron_file = Path.home() / ".qclaw" / "cron" / "jobs.json"
+    if not cron_file.exists():
+        return []
+    try:
+        data = json.loads(cron_file.read_text(encoding="utf-8"))
+        jobs = data.get("jobs", [])
+        # 只取 enabled=True 的任务
+        return [j for j in jobs if j.get("enabled", True)]
+    except Exception:
+        return []
 
 def main():
     print()
@@ -284,16 +274,11 @@ def main():
         # 原因：openclaw tasks list --json 返回历史执行记录，不含 schedule 字段
         # 正确做法：从 openclaw.json 读原始配置，但需另写解析器
         # 暂改为存任务名列表，migrate 时跳过自动创建，提示手动重建
-        cron_names = sorted(set(
-            t.get('label', '') or t.get('name', '')
-            for t in cron_tasks
-            if t.get('label') or t.get('name')
-        ))
+        # 存完整 jobs 定义，migrate 时直接重建
+        with open(package_dir / "cron_jobs.json", 'w', encoding='utf-8') as f:
+            json.dump(cron_tasks, f, indent=2, ensure_ascii=False)
 
-        with open(package_dir / "cron_tasks.json", 'w', encoding='utf-8') as f:
-            json.dump(cron_names, f, indent=2, ensure_ascii=False)
-
-        log(f"  cron_tasks.json ({len(cron_names)} 个任务名，待手动重建)")
+        log(f"  cron_jobs.json ({len(cron_tasks)} 个任务)")
     else:
         warn("  未能获取 cron 任务列表")
     print()
