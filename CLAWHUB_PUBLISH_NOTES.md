@@ -33,20 +33,20 @@
 
 ---
 
-## 三、发布命令模板（已含版本号）
+## 三、发布命令模板
 
 ```bash
-# quick-team
-clawhub publish /Users/zhaowenlong/claw-skill/quick-team --slug quick-team --name "Quick Team" --version 1.1.0 --changelog "全面升级：6步创建流程补全、新增子代理标准目录结构、新增去AI味铁律、补全所有模板和示例"
+# quick-team v1.1.0（首次发布）
+clawhub publish /Users/zhaowenlong/claw-skill/quick-team --slug quick-team --name "Quick Team" --version 1.1.0 --changelog "SKILL.md全面升级：新增metadata.name字段、6步创建流程补全、新增子代理标准目录结构、新增去AI味铁律章节；补全所有模板和示例（MEMORY.md/HEARTBEAT.md）；README.md升级为完整说明文档"
 
-# quick-resurrection
-clawhub publish /Users/zhaowenlong/claw-skill/quick-resurrection --slug quick-resurrection --name "Quick Resurrection" --version 1.0.0 --changelog "OpenClaw多Agent团队一键搬家，换电脑后一键复活整个团队"
+# quick-resurrection v2.2.0（重大升级）
+clawhub publish /Users/zhaowenlong/claw-skill/quick-resurrection --slug quick-resurrection --name "Quick Resurrection" --version 2.2.0 --changelog "cron迁移重大升级：直接从~/.qclaw/cron/jobs.json读取完整任务定义（schedule+payload+delivery全保留）；修复openclaw tasks list返回格式误判；历史记录按sourceId去重（586条→3条）；migrate自动重建cron任务"
 
-# team-resurrection
-clawhub publish /Users/zhaowenlong/claw-skill/team-resurrection --slug team-resurrection --name "Team Resurrection" --version 1.0.0 --changelog "精简版：核心文件打包，快速复刻团队"
+# team-resurrection v1.0.0（首次正式发布）
+clawhub publish /Users/zhaowenlong/claw-skill/team-resurrection --slug team-resurrection --name "Team Resurrection" --version 1.0.0 --changelog "分身复活：Agent失联后自动扫描子代理session找接续点，创建新agent继承记忆继续工作；clone.py支持scan/simulate/show三种模式"
 
-# team-sessions
-clawhub publish /Users/zhaowenlong/claw-skill/team-sessions --slug team-sessions --name "Team Sessions" --version 1.0.0 --changelog "团队沟通规范：零横向沟通、workspace隔离、标准派任务流程"
+# team-sessions v1.0.0（首次正式发布）
+clawhub publish /Users/zhaowenlong/claw-skill/team-sessions --slug team-sessions --name "Team Sessions" --version 1.0.0 --changelog "团队沟通规范v1.0：零横向沟通模式、workspace隔离机制、标准派任务流程、通用成员配置模板"
 ```
 
 ---
@@ -84,12 +84,12 @@ clawhub --version
 
 ## 五、当前版本表（每次发布后更新）
 
-| Skill | Slug | 当前版本 | 最后发布 |
-|-------|------|----------|----------|
-| Quick Team | quick-team | **1.1.0** | 2026-04-23 |
-| Quick Resurrection | quick-resurrection | **2.2.0** | 2026-04-23 |
-| Team Resurrection | team-resurrection | **1.0.0** | 2026-04-22 |
-| Team Sessions | team-sessions | **1.0.0** | 2026-04-22 |
+| Skill | Slug | 本地版本 | ClawHub已发布 |
+|-------|------|----------|--------------|
+| Quick Team | quick-team | **1.1.0** | 1.0.0（待发布1.1.0） |
+| Quick Resurrection | quick-resurrection | **2.2.0** | ？ |
+| Team Resurrection | team-resurrection | **1.0.0** | 未发布（待首次发布） |
+| Team Sessions | team-sessions | **1.0.0** | 未发布（待首次发布） |
 
 ---
 
