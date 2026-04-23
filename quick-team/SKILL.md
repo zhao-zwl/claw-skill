@@ -1,6 +1,6 @@
 ---
 name: quick-team
-description: 用自然语言指挥 AI 团队，低成本零门槛，三分钟创建一个专属团队成员。
+description: 三分钟，用自然语言创建一个会独立干活的AI同事。不需要懂技术，不需要配置，直接说"给我来一个XX"，它就上岗了。
 metadata:
   openclaw:
     requires:

@@ -1,6 +1,6 @@
 ---
 name: team-sessions
-description: 用 sessions_spawn 与团队成员沟通的标准工作流。支持任意数量子代理的团队管理。
+description: 子代理各干各的，谁也不理谁？这套流程让"一个主控发号施令、每个成员各司其职"变成标准操作，不靠人盯，不靠吼。
 metadata:
   openclaw:
     requires:

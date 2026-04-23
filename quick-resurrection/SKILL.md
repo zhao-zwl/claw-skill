@@ -1,6 +1,6 @@
 ---
 name: quick-resurrection
-description: OpenClaw多Agent团队一键搬家。换电脑 / 重装系统后，打包带走，一键复活整个团队。
+description: 换电脑、重装系统之后，你的AI团队还在吗？这个工具让整个团队"打包带走、原地复活"，一个命令，不丢一个成员。
 metadata:
   openclaw:
     requires:
