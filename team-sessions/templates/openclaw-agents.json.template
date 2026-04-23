@@ -1,0 +1,23 @@
+{
+  "agents": {
+    "defaults": {
+      "subagents": {
+        "allowAgents": ["*"]
+      }
+    },
+    "list": {
+      "member-a": {
+        "agentId": "member-a",
+        "workspace": "~/.qclaw/workspace-main/member-a"
+      },
+      "member-b": {
+        "agentId": "member-b",
+        "workspace": "~/.qclaw/workspace-main/member-b"
+      },
+      "member-c": {
+        "agentId": "member-c",
+        "workspace": "~/.qclaw/workspace-main/member-c"
+      }
+    }
+  }
+}
