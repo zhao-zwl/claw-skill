@@ -447,19 +447,16 @@ def prompt_main_agent_handling():
         
         config = load_json(config_path)
         
-        # 找当前 agent 的 id
-        # 先找 workspace-agent-* 目录
-        main_ws = None
+        # 找当前 agent 的 workspace
         candidates = [d for d in workspace_base.iterdir()
                       if d.is_dir() and d.name.startswith("workspace-")]
         
-        for c in candidates:
-            soul = c / "SOUL.md"
-            if candidates:
-                main_ws = str(candidates[0])  # 直接取第一个候选
+        if not candidates:
+            warn("  未能找到任何 workspace 目录")
+            warn("  请手动在 openclaw.json 中设置 main agent 的 workspace")
+            return False
         
-        if not main_ws and candidates:
-            main_ws = str(candidates[0])
+        main_ws = str(candidates[0])
         
         if main_ws:
             log(f"  找到 workspace：{main_ws}")
