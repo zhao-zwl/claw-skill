@@ -16,18 +16,7 @@ metadata:
 
 ---
 
-## 一、核心理念
-
-**一个主控，多成员，零横向沟通。**
-
-- 主代理（你）是唯一的调度中心
-- 成员只与主代理通信，不互相@、不互相回复
-- 所有任务通过 `sessions_spawn` 派发
-- 所有结果回报到主代理
-
----
-
-## 二、Sessions Spawn 三要素
+## 一、Sessions Spawn 三要素
 
 ```javascript
 sessions_spawn({
@@ -64,7 +53,7 @@ sessions_spawn({
 
 ---
 
-## 三、配置步骤
+## 二、配置步骤
 
 ### Step 1：创建成员 workspace
 
@@ -120,7 +109,7 @@ openclaw gateway restart
 
 ---
 
-## 四、标准派任务流程
+## 三、标准派任务流程
 
 ### 判断任务类型
 
@@ -186,7 +175,7 @@ sessions_yield()
 
 ---
 
-## 五、沟通铁律
+## 四、沟通铁律
 
 ### 1. 零横向沟通
 
@@ -218,7 +207,7 @@ sessions_yield()
 
 ---
 
-## 六、常见错误
+## 五、常见错误
 
 ### Forbidden Error
 
@@ -249,7 +238,7 @@ Error: sessions_spawn forbidden
 
 ---
 
-## 七、最佳实践
+## 六、最佳实践
 
 1. **预写脚本**：复杂任务先写 Python 脚本，让子代理只执行 `python3 xxx.py`
 2. **任务编号**：每个任务带编号，方便追踪

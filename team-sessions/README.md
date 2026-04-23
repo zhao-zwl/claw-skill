@@ -18,7 +18,7 @@
 ### 1. 安装
 
 ```bash
-clawhub install team-communication
+clawhub install team-sessions
 ```
 
 ### 2. 配置成员
