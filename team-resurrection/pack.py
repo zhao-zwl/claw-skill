@@ -72,24 +72,26 @@ def detect_active_workspace():
                     return wp
 
     # fallback：从agents.list推断主agent workspace
-    # 所有成员workspace的公共父目录，应该就是主agent的workspace
-    workspaces = [a.get('workspace', '') for a in agents if a.get('workspace')]
+    # 策略：收集所有workspace路径的父级链，找包含SOUL.md的最深公共父目录
+    workspaces = [Path(a['workspace']) for a in agents
+                  if a.get('workspace') and Path(a.get('workspace', '')).exists()]
     if workspaces:
-        # 提取所有workspace的父目录
-        parents = set()
+        # 收集所有workspace的所有祖先目录（到home为止）
+        candidate_dirs = set()
+        home = Path.home()
         for ws in workspaces:
-            p = Path(ws)
-            if p.parent.name.startswith('workspace-'):
-                parents.add(p.parent)
-        # 如果只有一个公共父目录，那就是主agent的workspace
-        for parent in parents:
-            if (parent / 'SOUL.md').exists() and (parent / 'MEMORY.md').exists():
-                return parent
+            for parent in ws.parents:
+                if parent == home or not str(parent).startswith(str(home)):
+                    break
+                candidate_dirs.add(parent)
+        # 在候选目录中找包含SOUL.md+MEMORY.md的，选最深的（最接近workspace）
+        for candidate in sorted(candidate_dirs, key=lambda x: len(x.parts), reverse=True):
+            if (candidate / 'SOUL.md').exists() and (candidate / 'MEMORY.md').exists():
+                return candidate
 
     # fallback：遍历 workspace- 开头的目录，找包含 SOUL.md + MEMORY.md 的
     workspace_base = Path.home() / ".qclaw"
     for d in sorted(workspace_base.iterdir(), key=lambda x: len(x.name)):
-        # 优先找名字短的（主agent的workspace通常比成员的短）
         if d.is_dir() and d.name.startswith("workspace-"):
             if (d / "SOUL.md").exists() and (d / "MEMORY.md").exists():
                 return d
